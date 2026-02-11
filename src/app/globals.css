@@ -1,26 +1,179 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "TeX Gyre Heros";
+  src: url("/fonts/texgyreheros-regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "TeX Gyre Heros";
+  src: url("/fonts/texgyreheros-bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #000000;
+  --placeholder: #acacac;
+  --font-heros: "TeX Gyre Heros", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+:root.dark {
+  --background: #000000;
+  --foreground: #ffffff;
+  --placeholder: #555555;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-placeholder: var(--placeholder);
+  --font-abhaya: var(--font-abhaya);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* GSAP ScrollSmoother handles smooth scrolling */
+html, body {
+  overflow-x: hidden;
+}
+
+#smooth-wrapper {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  top: 72px; /* navMargin(12) + navHeight(48) + gap(12) */
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+@media (min-width: 768px) {
+  #smooth-wrapper {
+    top: 76px; /* navMargin(12) + navHeight(52) + gap(12) */
   }
+}
+
+#smooth-content {
+  overflow: visible;
+  width: 100%;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* Global Typography - Inherit color so Tailwind classes can override */
+h1, h2, h3, h4, h5, h6, p, span, li, a {
+  color: inherit;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+}
+
+/* Section text utility - same size h2 and body */
+.section-text h2,
+.section-text p {
+  font-size: 24px;
+  line-height: 1.3;
+  color: var(--foreground);
+  margin-bottom: 12px;
+}
+
+.section-text h2 {
+  font-weight: 700;
+}
+
+.section-text p {
+  font-weight: 400;
+}
+
+@media (min-width: 768px) {
+  .section-text h2,
+  .section-text p {
+    font-size: 32px;
+  }
+}
+
+/* Dark section text variant */
+.section-text-dark h2,
+.section-text-dark p {
+  font-size: 24px;
+  line-height: 1.3;
+  color: #ffffff;
+  margin-bottom: 12px;
+}
+
+.section-text-dark h2 {
+  font-weight: 700;
+}
+
+.section-text-dark p {
+  font-weight: 400;
+}
+
+@media (min-width: 768px) {
+  .section-text-dark h2,
+  .section-text-dark p {
+    font-size: 32px;
+  }
+}
+
+/* Fade in animation */
+.fade-in {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stagger delay for grid items */
+.fade-in-delay-1 { transition-delay: 0.1s; }
+.fade-in-delay-2 { transition-delay: 0.2s; }
+.fade-in-delay-3 { transition-delay: 0.3s; }
+.fade-in-delay-4 { transition-delay: 0.4s; }
+
+/* View Transitions */
+@view-transition {
+  navigation: auto;
+}
+
+/* Disable default root transition */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+/* Headline with exclusion blend mode - inverts against background */
+.headline-exclusion {
+  color: #ffffff;
+  mix-blend-mode: exclusion;
+}
+
+.headline-exclusion h1,
+.headline-exclusion h2,
+.headline-exclusion h3,
+.headline-exclusion p,
+.headline-exclusion span {
+  color: inherit;
+}
+
+.diagram-transition {
+  view-transition-name: intelligence-diagram;
+}
+
+::view-transition-old(intelligence-diagram),
+::view-transition-new(intelligence-diagram) {
+  animation: none;
+  mix-blend-mode: normal;
 }

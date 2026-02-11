@@ -39,3 +39,16 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local asset folders (not for git)
+/Sidans filer/
+/Typefaces/
+/(1)/
+/2/
+/header vid/
+
+# documents
+*.docx
+
+# claude
+.claude/
