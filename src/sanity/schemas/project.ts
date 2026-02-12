@@ -76,6 +76,13 @@ export default defineType({
       description: 'Animated hero content (MP4, WebM, GIF). Takes precedence over Hero Image if set.',
     }),
     defineField({
+      name: 'enableVideoPlayer',
+      title: 'Enable Video Player',
+      type: 'boolean',
+      description: 'When checked, the hero video will display with playback controls and a floating mini-player (like a QuickTime player). When unchecked, the video plays as a simple background loop with no controls.',
+      initialValue: false,
+    }),
+    defineField({
       name: 'heroImageConfig',
       title: 'Hero Image Config',
       type: 'object',

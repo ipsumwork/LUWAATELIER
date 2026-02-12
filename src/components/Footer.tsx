@@ -8,6 +8,10 @@ interface FooterProps {
 export default function Footer({ siteConfig }: FooterProps) {
   const contactEmail = siteConfig?.contactEmail || "hello@luwa.design";
   const socialLinks = siteConfig?.socialLinks || [];
+  const footerTagline = siteConfig?.footerTagline || "SHOP OPEN 9-5";
+  const footerName = siteConfig?.footerName || "L.WANELOF";
+  const footerPhone = siteConfig?.footerPhone || "(+46)";
+  const footerBrandText = siteConfig?.footerBrandText || "LUWA ATELIER";
 
   const instagram = socialLinks.find((l) => l.platform === "instagram");
   const linkedin = socialLinks.find((l) => l.platform === "linkedin");
@@ -18,7 +22,7 @@ export default function Footer({ siteConfig }: FooterProps) {
       <div className="flex flex-col md:flex-row md:justify-between gap-[40px] md:gap-0 mb-[80px] md:mb-[104px]">
         {/* Left - Tagline */}
         <p className="text-[28px] md:text-[50px] font-bold leading-tight">
-          SHOP OPEN 9-5
+          {footerTagline}
         </p>
 
         {/* Right - Two Columns */}
@@ -46,14 +50,14 @@ export default function Footer({ siteConfig }: FooterProps) {
           {/* Offline Column */}
           <div className="flex flex-col text-[28px] md:text-[50px] font-bold leading-tight">
             <span>OFFLINE</span>
-            <span>L.WANELOF</span>
-            <span>(+46)</span>
+            <span>{footerName}</span>
+            <span>{footerPhone}</span>
           </div>
         </div>
       </div>
 
       {/* Large Brand Name - SVG scales to fill container width exactly */}
-      <svg viewBox="0 0 100 15" className="w-full block" preserveAspectRatio="none" aria-label="LUWA ATELIER">
+      <svg viewBox="0 0 100 15" className="w-full block" preserveAspectRatio="none" aria-label={footerBrandText}>
         <text
           x="0"
           y="12"
@@ -62,7 +66,7 @@ export default function Footer({ siteConfig }: FooterProps) {
           className="font-medium"
           style={{ fontSize: '14px', fill: 'currentColor' }}
         >
-          LUWA ATELIER
+          {footerBrandText}
         </text>
       </svg>
     </footer>

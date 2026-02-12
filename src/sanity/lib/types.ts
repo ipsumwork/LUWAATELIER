@@ -86,6 +86,7 @@ export interface Project {
   processSteps: ProcessStep[];
   heroImage?: SanityImageExpanded;
   heroVideo?: SanityVideo;
+  enableVideoPlayer?: boolean;
   galleryImages?: SanityImageExpanded[];
   customComponent?: 'IntelligenceDiagram' | 'FlipBook' | 'none';
 }
@@ -111,6 +112,9 @@ export interface AboutPage {
   clients: string[];
   portrait?: SanityImageExpanded;
   contactEmail?: string;
+  servicesLabel?: string;
+  clientsLabel?: string;
+  contactLabel?: string;
 }
 
 // Site Configuration Singleton
@@ -130,4 +134,8 @@ export interface SiteConfig {
       mimeType?: string;
     };
   };
+  footerTagline?: string;
+  footerName?: string;
+  footerPhone?: string;
+  footerBrandText?: string;
 }

@@ -43,6 +43,34 @@ export default defineType({
         accept: 'image/gif,video/mp4,video/webm',
       },
     }),
+    defineField({
+      name: 'footerTagline',
+      title: 'Footer Tagline',
+      type: 'string',
+      description: 'Large text in the footer (e.g. "SHOP OPEN 9-5")',
+      initialValue: 'SHOP OPEN 9-5',
+    }),
+    defineField({
+      name: 'footerName',
+      title: 'Footer Name',
+      type: 'string',
+      description: 'Name displayed in the footer offline column',
+      initialValue: 'L.WANELOF',
+    }),
+    defineField({
+      name: 'footerPhone',
+      title: 'Footer Phone',
+      type: 'string',
+      description: 'Phone number in the footer offline column',
+      initialValue: '(+46)',
+    }),
+    defineField({
+      name: 'footerBrandText',
+      title: 'Footer Brand Text',
+      type: 'string',
+      description: 'Large brand text at the bottom of the footer',
+      initialValue: 'LUWA ATELIER',
+    }),
   ],
   preview: {
     prepare() {

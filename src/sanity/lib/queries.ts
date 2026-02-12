@@ -61,6 +61,7 @@ export const projectBySlugQuery = groq`
     },
     heroImage ${imageExpansion},
     heroVideo ${videoExpansion},
+    enableVideoPlayer,
     galleryImages[] ${imageExpansion},
     customComponent
   }
@@ -80,7 +81,10 @@ export const aboutPageQuery = groq`
     services,
     clients,
     portrait ${imageExpansion},
-    contactEmail
+    contactEmail,
+    servicesLabel,
+    clientsLabel,
+    contactLabel
   }
 `;
 
@@ -102,6 +106,10 @@ export const siteConfigQuery = groq`
         url,
         mimeType
       }
-    }
+    },
+    footerTagline,
+    footerName,
+    footerPhone,
+    footerBrandText
   }
 `;

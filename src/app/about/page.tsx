@@ -27,6 +27,9 @@ export default async function About() {
   ];
   const contactEmail = about?.contactEmail || siteConfig?.contactEmail || "hello@luwa.design";
   const socialLinks = siteConfig?.socialLinks || [];
+  const servicesLabel = about?.servicesLabel || "Services";
+  const clientsLabel = about?.clientsLabel || "Selected Clients";
+  const contactLabel = about?.contactLabel || "Contact";
 
   return (
     <main className="min-h-screen bg-[var(--background)]">
@@ -94,7 +97,7 @@ export default async function About() {
             <FadeIn delay={0.2}>
               <div>
                 <h3 className="text-[14px] uppercase tracking-[0.1em] text-foreground opacity-50 mb-[16px] font-bold">
-                  Services
+                  {servicesLabel}
                 </h3>
                 <ul className="space-y-[8px] text-[24px] md:text-[32px] font-normal">
                   {services.map((service, i) => (
@@ -107,7 +110,7 @@ export default async function About() {
             <FadeIn delay={0.3}>
               <div>
                 <h3 className="text-[14px] uppercase tracking-[0.1em] text-foreground opacity-50 mb-[16px] font-bold">
-                  Selected Clients
+                  {clientsLabel}
                 </h3>
                 <ul className="space-y-[8px] text-[24px] md:text-[32px] font-normal">
                   {clients.map((client, i) => (
@@ -120,7 +123,7 @@ export default async function About() {
             <FadeIn delay={0.4}>
               <div>
                 <h3 className="text-[14px] uppercase tracking-[0.1em] text-foreground opacity-50 mb-[16px] font-bold">
-                  Contact
+                  {contactLabel}
                 </h3>
                 <ul className="space-y-[8px] text-[24px] md:text-[32px] font-normal">
                   <li>

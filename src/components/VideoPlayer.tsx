@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState, useEffect, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface VideoPlayerProps {
   src: string;
@@ -73,7 +73,7 @@ export function VideoPlayer({ src, poster, title }: VideoPlayerProps) {
     }
   }, [isPlaying, isMinimized, isClosed]);
 
-  // Update progress
+  // Update progress from the single video element
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -202,7 +202,8 @@ export function VideoPlayer({ src, poster, title }: VideoPlayerProps) {
 
   return (
     <>
-      {/* Fullscreen mode */}
+      {/* Single shared video element — rendered in fullscreen layer,
+          visible in both states via CSS */}
       <motion.div
         initial={{ opacity: 1 }}
         animate={{
@@ -213,7 +214,7 @@ export function VideoPlayer({ src, poster, title }: VideoPlayerProps) {
         className="fixed inset-0 z-50 bg-black"
         style={{ visibility: isMinimized ? 'hidden' : 'visible' }}
       >
-        {/* Video - always rendered but visibility changes */}
+        {/* The one and only video element */}
         <video
           ref={videoRef}
           src={src}
@@ -249,7 +250,7 @@ export function VideoPlayer({ src, poster, title }: VideoPlayerProps) {
           {/* Minimize button */}
           <button
             onClick={toggleMinimize}
-            className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors pointer-events-auto"
+            className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors pointer-events-auto cursor-pointer"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M3 6L8 11L13 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -282,7 +283,7 @@ export function VideoPlayer({ src, poster, title }: VideoPlayerProps) {
                 {/* Play/Pause */}
                 <button
                   onClick={togglePlay}
-                  className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+                  className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors cursor-pointer"
                 >
                   {isPlaying ? (
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -299,7 +300,7 @@ export function VideoPlayer({ src, poster, title }: VideoPlayerProps) {
                 {/* Mute */}
                 <button
                   onClick={toggleMute}
-                  className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+                  className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors cursor-pointer"
                 >
                   {isMuted ? (
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -325,109 +326,183 @@ export function VideoPlayer({ src, poster, title }: VideoPlayerProps) {
         </motion.div>
       </motion.div>
 
-      {/* Minimized floating player */}
-      <motion.div
-        initial={{ opacity: 0, y: 100, scale: 0.8 }}
-        animate={{
-          opacity: isMinimized ? 1 : 0,
-          y: isMinimized ? 0 : 100,
-          scale: isMinimized ? 1 : 0.8,
-          pointerEvents: isMinimized ? 'auto' : 'none',
-        }}
-        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-        drag={isMinimized}
-        dragMomentum={false}
-        className="fixed bottom-6 right-6 z-50 w-[320px] rounded-lg overflow-hidden shadow-2xl bg-black"
-        style={{ aspectRatio: '16/9' }}
-      >
-        {/* Mini video preview - uses poster or shows last frame */}
-        <video
-          src={src}
-          className="w-full h-full object-cover pointer-events-none"
-          autoPlay
-          muted
-          loop
-          playsInline
-        />
-
-        {/* Mini controls overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity">
-          {/* Expand button */}
-          <button
-            onClick={toggleMinimize}
-            className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors"
+      {/* Minimized floating player — renders a canvas-like preview from the same video */}
+      <AnimatePresence>
+        {isMinimized && (
+          <motion.div
+            key="mini-player"
+            initial={{ opacity: 0, y: 100, scale: 0.8 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 100, scale: 0.8 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            drag
+            dragMomentum={false}
+            className="fixed bottom-6 right-6 z-50 w-[320px] rounded-lg overflow-hidden shadow-2xl bg-black group"
+            style={{ aspectRatio: '16/9' }}
           >
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M1 5V1H5M9 1H13V5M13 9V13H9M5 13H1V9" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
+            {/* Mini video preview — a second video element synced with the main one */}
+            <MiniVideoPreview
+              src={src}
+              mainVideoRef={videoRef}
+              isPlaying={isPlaying}
+              isMuted={isMuted}
+            />
 
-          {/* Close button */}
-          <button
-            onClick={closePlayer}
-            className="absolute top-2 left-2 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors"
-          >
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <path d="M1 1L11 11M11 1L1 11" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
-            </svg>
-          </button>
-
-          {/* Bottom mini controls */}
-          <div className="absolute bottom-0 left-0 right-0 p-3">
-            {/* Mini progress bar */}
-            <div
-              ref={miniProgressRef}
-              className="relative h-1 bg-white/30 rounded-full cursor-pointer mb-2"
-              onClick={handleMiniProgressClick}
-            >
-              <div
-                className="absolute top-0 left-0 h-full bg-white rounded-full"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-
-            {/* Mini control buttons */}
-            <div className="flex items-center gap-2">
+            {/* Mini controls overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+              {/* Expand button */}
               <button
-                onClick={togglePlay}
-                className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+                onClick={toggleMinimize}
+                className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors cursor-pointer"
               >
-                {isPlaying ? (
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <rect x="2" y="1" width="3" height="12" rx="1" fill="white"/>
-                    <rect x="9" y="1" width="3" height="12" rx="1" fill="white"/>
-                  </svg>
-                ) : (
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <path d="M3 1.5L12 7L3 12.5V1.5Z" fill="white"/>
-                  </svg>
-                )}
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M1 5V1H5M9 1H13V5M13 9V13H9M5 13H1V9" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
               </button>
 
+              {/* Close button */}
               <button
-                onClick={toggleMute}
-                className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+                onClick={closePlayer}
+                className="absolute top-2 left-2 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors cursor-pointer"
               >
-                {isMuted ? (
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <path d="M7 2L3.5 5H1V9H3.5L7 12V2Z" fill="white"/>
-                    <path d="M10 5L13 8M13 5L10 8" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
-                  </svg>
-                ) : (
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <path d="M7 2L3.5 5H1V9H3.5L7 12V2Z" fill="white"/>
-                    <path d="M10 5C11 5.7 11.5 6.3 11.5 7C11.5 7.7 11 8.3 10 9" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
-                  </svg>
-                )}
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M1 1L11 11M11 1L1 11" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
               </button>
 
-              <span className="text-white/70 text-xs font-mono ml-auto">
-                {formatTime(currentTime)}
-              </span>
+              {/* Bottom mini controls */}
+              <div className="absolute bottom-0 left-0 right-0 p-3">
+                {/* Mini progress bar */}
+                <div
+                  ref={miniProgressRef}
+                  className="relative h-1 bg-white/30 rounded-full cursor-pointer mb-2"
+                  onClick={handleMiniProgressClick}
+                >
+                  <div
+                    className="absolute top-0 left-0 h-full bg-white rounded-full"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+
+                {/* Mini control buttons */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={togglePlay}
+                    className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors cursor-pointer"
+                  >
+                    {isPlaying ? (
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <rect x="2" y="1" width="3" height="12" rx="1" fill="white"/>
+                        <rect x="9" y="1" width="3" height="12" rx="1" fill="white"/>
+                      </svg>
+                    ) : (
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M3 1.5L12 7L3 12.5V1.5Z" fill="white"/>
+                      </svg>
+                    )}
+                  </button>
+
+                  <button
+                    onClick={toggleMute}
+                    className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors cursor-pointer"
+                  >
+                    {isMuted ? (
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M7 2L3.5 5H1V9H3.5L7 12V2Z" fill="white"/>
+                        <path d="M10 5L13 8M13 5L10 8" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+                      </svg>
+                    ) : (
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M7 2L3.5 5H1V9H3.5L7 12V2Z" fill="white"/>
+                        <path d="M10 5C11 5.7 11.5 6.3 11.5 7C11.5 7.7 11 8.3 10 9" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+                      </svg>
+                    )}
+                  </button>
+
+                  <span className="text-white/70 text-xs font-mono ml-auto">
+                    {formatTime(currentTime)}
+                  </span>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
+  );
+}
+
+/**
+ * Mini video preview component that stays synced with the main video.
+ * Uses a separate <video> element but continuously syncs currentTime,
+ * play/pause state, and mute state with the main player.
+ */
+function MiniVideoPreview({
+  src,
+  mainVideoRef,
+  isPlaying,
+  isMuted,
+}: {
+  src: string;
+  mainVideoRef: React.RefObject<HTMLVideoElement | null>;
+  isPlaying: boolean;
+  isMuted: boolean;
+}) {
+  const miniRef = useRef<HTMLVideoElement>(null);
+  const syncIntervalRef = useRef<NodeJS.Timeout>(undefined);
+
+  // Sync playback position with main video at regular intervals
+  useEffect(() => {
+    const sync = () => {
+      const main = mainVideoRef.current;
+      const mini = miniRef.current;
+      if (!main || !mini) return;
+
+      // Only sync if drift is > 0.3s to avoid constant seeking
+      const drift = Math.abs(main.currentTime - mini.currentTime);
+      if (drift > 0.3) {
+        mini.currentTime = main.currentTime;
+      }
+    };
+
+    // Sync every 500ms
+    syncIntervalRef.current = setInterval(sync, 500);
+    // Initial sync
+    sync();
+
+    return () => {
+      if (syncIntervalRef.current) clearInterval(syncIntervalRef.current);
+    };
+  }, [mainVideoRef]);
+
+  // Sync play/pause state
+  useEffect(() => {
+    const mini = miniRef.current;
+    if (!mini) return;
+
+    if (isPlaying) {
+      mini.play().catch(() => {});
+    } else {
+      mini.pause();
+    }
+  }, [isPlaying]);
+
+  // Sync mute state
+  useEffect(() => {
+    const mini = miniRef.current;
+    if (!mini) return;
+    mini.muted = isMuted;
+  }, [isMuted]);
+
+  return (
+    <video
+      ref={miniRef}
+      src={src}
+      className="w-full h-full object-cover pointer-events-none"
+      autoPlay
+      muted
+      loop
+      playsInline
+    />
   );
 }

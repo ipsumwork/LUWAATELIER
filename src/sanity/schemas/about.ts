@@ -43,6 +43,27 @@ export default defineType({
       title: 'Contact Email',
       type: 'string',
     }),
+    defineField({
+      name: 'servicesLabel',
+      title: 'Services Section Label',
+      type: 'string',
+      description: 'Heading above the services list',
+      initialValue: 'Services',
+    }),
+    defineField({
+      name: 'clientsLabel',
+      title: 'Clients Section Label',
+      type: 'string',
+      description: 'Heading above the clients list',
+      initialValue: 'Selected Clients',
+    }),
+    defineField({
+      name: 'contactLabel',
+      title: 'Contact Section Label',
+      type: 'string',
+      description: 'Heading above the contact info',
+      initialValue: 'Contact',
+    }),
   ],
   preview: {
     prepare() {
