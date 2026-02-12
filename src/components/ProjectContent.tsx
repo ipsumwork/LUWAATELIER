@@ -52,11 +52,14 @@ export function ProjectContent({ project }: ProjectContentProps) {
   // Check if heroVideo exists (takes precedence over heroImage)
   const hasHeroVideo = project.heroVideo?.asset?.url;
   const hasHeroImage = project.heroImage?.asset?.url;
+  // Only show the full VideoPlayer (with controls + floating mini-player)
+  // when enableVideoPlayer is checked in the CMS
+  const showVideoPlayer = hasHeroVideo && project.enableVideoPlayer;
 
   return (
     <main className="min-h-screen bg-[var(--background)]">
-      {/* Floating Video Player */}
-      {hasHeroVideo && project.heroVideo?.asset?.url && (
+      {/* Floating Video Player — only when enableVideoPlayer is true */}
+      {showVideoPlayer && project.heroVideo?.asset?.url && (
         <VideoPlayer
           src={project.heroVideo.asset.url}
           title={project.title}

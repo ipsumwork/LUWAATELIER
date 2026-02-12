@@ -104,6 +104,10 @@ export default function Hero({ heroMediaUrl, heroMediaMime, heroBgColor }: HeroP
         backgroundColor: heroBgColor || "#acacac",
         backdropFilter: "none", borderBottom: "none",
       });
+      // Prevent browser touch-scroll from eating swipe events on mobile
+      if (isMobile && heroRef.current) {
+        heroRef.current.style.touchAction = "none";
+      }
       gsap.set(luwaRef.current, { x: 0, scale: 1 });
       gsap.set(atelierRef.current, { x: 0, scale: 1 });
       if (mediaRef.current) gsap.set(mediaRef.current, { opacity: 1 });
@@ -160,6 +164,8 @@ export default function Hero({ heroMediaUrl, heroMediaMime, heroBgColor }: HeroP
           isCollapsed = true;
           heroObserver?.disable();
           returnObserver?.enable();
+          // Restore normal touch scrolling once hero is collapsed
+          if (heroRef.current) heroRef.current.style.touchAction = "auto";
           const smoother = ScrollSmoother.get();
           if (smoother) { smoother.scrollTo(0, false); smoother.paused(false); }
           // Apply dark mode colors if active
@@ -176,6 +182,8 @@ export default function Hero({ heroMediaUrl, heroMediaMime, heroBgColor }: HeroP
           isCollapsed = false;
           heroObserver?.enable();
           returnObserver?.disable();
+          // Lock touch on hero again when expanded
+          if (isMobile && heroRef.current) heroRef.current.style.touchAction = "none";
           const smoother = ScrollSmoother.get();
           if (smoother) { smoother.scrollTo(0, false); smoother.paused(true); }
         },
@@ -221,9 +229,12 @@ export default function Hero({ heroMediaUrl, heroMediaMime, heroBgColor }: HeroP
         if (smoother) { smoother.scrollTo(0, false); smoother.paused(true); }
       }
 
-      // Observers
+      // Observers — use different settings for touch vs desktop
+      const touchTolerance = isMobile ? 30 : 10;
+
       heroObserver = Observer.create({
-        type: "wheel,touch,pointer",
+        target: heroRef.current,
+        type: "wheel,touch",
         onDown: () => {
           if (!animating && collapseTl) {
             animating = true;
@@ -231,11 +242,14 @@ export default function Hero({ heroMediaUrl, heroMediaMime, heroBgColor }: HeroP
             collapseTl.play();
           }
         },
-        tolerance: 10, preventDefault: true,
+        tolerance: touchTolerance,
+        preventDefault: true,
+        // On mobile, only intercept vertical swipes to avoid blocking horizontal gestures
+        dragMinimum: isMobile ? 8 : 0,
       });
 
       returnObserver = Observer.create({
-        type: "wheel,touch,pointer",
+        type: "wheel,touch",
         onUp: () => {
           if (!animating && collapseTl) {
             const smoother = ScrollSmoother.get();
@@ -245,7 +259,8 @@ export default function Hero({ heroMediaUrl, heroMediaMime, heroBgColor }: HeroP
             }
           }
         },
-        tolerance: 10, preventDefault: false,
+        tolerance: touchTolerance,
+        preventDefault: false,
       });
 
       if (isCollapsed) {
