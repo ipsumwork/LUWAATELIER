@@ -1,7 +1,6 @@
 import { getProjects, getSiteConfig, getAboutPage } from "@/sanity/lib/fetch";
 import Hero from "@/components/Hero";
 import { ProjectGrid } from "@/components/ProjectGrid";
-import Footer from "@/components/Footer";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -71,7 +70,6 @@ export default async function TestingPage() {
         </div>
       </section>
 
-      <Footer siteConfig={siteConfig} />
     </main>
   );
 }

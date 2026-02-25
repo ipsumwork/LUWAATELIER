@@ -58,56 +58,54 @@ export function ProjectContent({ project }: ProjectContentProps) {
 
   return (
     <main className="min-h-screen bg-[var(--background)]">
-      {/* Floating Video Player — only when enableVideoPlayer is true */}
-      {showVideoPlayer && project.heroVideo?.asset?.url && (
-        <VideoPlayer
-          src={project.heroVideo.asset.url}
-          title={project.title}
-        />
-      )}
-
-      {/* Hero with diagram, flipbook, video, or image */}
+      {/* Hero — VideoPlayer takes over when enabled, else normal hero */}
       <section className="w-full">
-        <div className={`relative w-full overflow-hidden diagram-transition ${
-          showFlipBook ? 'h-screen' : 'aspect-[16/9] md:aspect-[2.5/1]'
-        }`}>
-          {showFlipBook ? (
-            <FlipBook />
-          ) : showCustomDiagram ? (
-            <IntelligenceDiagram />
-          ) : hasHeroVideo ? (
-            // Render video/gif hero (static background when player is minimized)
-            <SanityMedia
-              video={project.heroVideo}
-              alt={project.title}
-              fill
-              className="object-cover"
-            />
-          ) : hasHeroImage && project.heroImage ? (
-            isEditMode ? (
-              <EditableImage
-                documentId={project._id}
-                documentType="project"
-                fieldPath="heroImage"
-                image={project.heroImage}
-                alt={project.title}
-                className="object-cover"
-                containerClassName="w-full h-full"
-                defaultConfig={{ width: 100, aspectRatio: '16/9' }}
-                fill
-              />
-            ) : (
+        {showVideoPlayer && project.heroVideo?.asset?.url ? (
+          <VideoPlayer
+            src={project.heroVideo.asset.url}
+            title={project.title}
+          />
+        ) : (
+          <div className={`relative w-full overflow-hidden diagram-transition ${
+            showFlipBook ? 'h-screen' : 'aspect-[16/9] md:aspect-[2.5/1]'
+          }`}>
+            {showFlipBook ? (
+              <FlipBook />
+            ) : showCustomDiagram ? (
+              <IntelligenceDiagram />
+            ) : hasHeroVideo ? (
               <SanityMedia
-                image={project.heroImage}
+                video={project.heroVideo}
                 alt={project.title}
                 fill
                 className="object-cover"
               />
-            )
-          ) : (
-            <div className="w-full h-full bg-[#acacac]" />
-          )}
-        </div>
+            ) : hasHeroImage && project.heroImage ? (
+              isEditMode ? (
+                <EditableImage
+                  documentId={project._id}
+                  documentType="project"
+                  fieldPath="heroImage"
+                  image={project.heroImage}
+                  alt={project.title}
+                  className="object-cover"
+                  containerClassName="w-full h-full"
+                  defaultConfig={{ width: 100, aspectRatio: '16/9' }}
+                  fill
+                />
+              ) : (
+                <SanityMedia
+                  image={project.heroImage}
+                  alt={project.title}
+                  fill
+                  className="object-cover"
+                />
+              )
+            ) : (
+              <div className="w-full h-full bg-[#acacac]" />
+            )}
+          </div>
+        )}
       </section>
 
       {/* Content Section */}
@@ -137,7 +135,9 @@ export function ProjectContent({ project }: ProjectContentProps) {
           {/* Right Column - Vertical Image Stack */}
           <div className="flex flex-col gap-[16px] md:gap-[24px]">
             {project.galleryImages && project.galleryImages.length > 0 ? (
-              project.galleryImages.map((image, i) => (
+              project.galleryImages.map((image, i) => {
+                const ratio = image.asset?.metadata?.dimensions?.aspectRatio;
+                return (
                 <div key={i} className="relative">
                   {isEditMode ? (
                     <EditableImage
@@ -148,10 +148,13 @@ export function ProjectContent({ project }: ProjectContentProps) {
                       alt={image.alt || `Gallery image ${i + 1}`}
                       className="object-cover"
                       containerClassName="w-full"
-                      defaultConfig={{ width: 100, aspectRatio: '4/3' }}
+                      defaultConfig={{ width: 100, aspectRatio: ratio ? `${ratio}` : '4/3' }}
                     />
                   ) : (
-                    <div className="relative w-full aspect-[4/3] bg-[#d9d9d9] overflow-hidden">
+                    <div
+                      className="relative w-full bg-[#d9d9d9] overflow-hidden"
+                      style={{ aspectRatio: ratio ?? 4 / 3 }}
+                    >
                       <SanityMedia
                         image={image}
                         alt={image.alt || `Gallery image ${i + 1}`}
@@ -161,7 +164,8 @@ export function ProjectContent({ project }: ProjectContentProps) {
                     </div>
                   )}
                 </div>
-              ))
+                );
+              })
             ) : (
               // Placeholder images if no gallery
               <>
