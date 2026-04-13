@@ -5,14 +5,14 @@ import { ProjectContent } from "@/components/ProjectContent";
 import FontShowcase from "./FontShowcase";
 
 const holesmono = localFont({
-  src: "../../../../Typefaces/type/HolesmonoVF.ttf",
+  src: "./fonts/HolesmonoVF.ttf",
   variable: "--font-holesmono",
   display: "swap",
   weight: "100 900",
 });
 
 const placemono = localFont({
-  src: "../../../../Typefaces/type/PLACEMONOVF.ttf",
+  src: "./fonts/PLACEMONOVF.ttf",
   variable: "--font-placemono",
   display: "swap",
   weight: "100 900",
